@@ -1,5 +1,11 @@
 package pattern
 
+// Порождающий паттерн Строитель предлагает вынести конструирование объекта за пределы его собственного класса,
+// поручив это дело отдельным объектам, называемым строителями.
+
+type House struct {
+}
+
 type Motorbike struct {
 	Make         string
 	Model        string
@@ -21,6 +27,7 @@ type MotorbikeBuilder interface {
 	SetWheelSize() MotorbikeBuilder
 }
 
+// MinskBuilder – конкретный строитель мотоцикла Минск
 type MinskBuilder struct {
 	m Motorbike
 }
@@ -54,6 +61,9 @@ func (mb *MinskBuilder) GetResult() Motorbike {
 	return mb.m
 }
 
+// Вы можете пойти дальше и выделить вызовы методов строителя в отдельный класс, называемый директором.
+// В этом случае директор будет задавать порядок шагов строительства, а строитель — выполнять их.
+
 type MotorbikeBuildDirector struct {
 	builder MotorbikeBuilder
 }
@@ -68,4 +78,38 @@ func (d *MotorbikeBuildDirector) Construct() {
 
 func (d *MotorbikeBuildDirector) GetResult() Motorbike {
 	return d.builder.GetResult()
+}
+
+// UralBuilder – конкретный строитель мотоцикла Минск
+type UralBuilder struct {
+	m Motorbike
+}
+
+func (mb *UralBuilder) SetMake() MotorbikeBuilder {
+	mb.m.Make = "Ural"
+	return mb
+}
+
+func (mb *UralBuilder) SetModel() MotorbikeBuilder {
+	mb.m.Model = "650"
+	return mb
+}
+
+func (mb *UralBuilder) SetColor() MotorbikeBuilder {
+	mb.m.Color = "blue"
+	return mb
+}
+
+func (mb *UralBuilder) SetEngineVolume() MotorbikeBuilder {
+	mb.m.EngineVolume = 650
+	return mb
+}
+
+func (mb *UralBuilder) SetWheelSize() MotorbikeBuilder {
+	mb.m.WheelSize = 19
+	return mb
+}
+
+func (mb *UralBuilder) GetResult() Motorbike {
+	return mb.m
 }

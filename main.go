@@ -1,14 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"wb_l2/pattern"
+	_8_state "wb_l2/pattern/08_state"
 )
 
 func main() {
-	builder := pattern.MinskBuilder{}
-	director := pattern.NewMotorbikeBuildDirector(&builder)
-	director.Construct()
-	motorbike := director.GetResult()
-	fmt.Println(motorbike)
+	_8_state.Run()
 }
