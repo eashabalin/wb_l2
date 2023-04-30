@@ -1,9 +1,11 @@
 package main
 
 import (
-	_8_state "wb_l2/pattern/08_state"
+	"fmt"
+	"wb_l2/develop/dev02"
 )
 
 func main() {
-	_8_state.Run()
+	s := dev02.UnpackStr("ap11bc2d5e")
+	fmt.Println(s)
 }

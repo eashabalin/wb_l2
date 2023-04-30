@@ -1,0 +1,10 @@
+github.com/beevik/ntp v0.3.0 h1:xzVrPrE4ziasFXgBVBZJDP0Wg/KpMwk2KHJ4Ba8GrDw=
+github.com/beevik/ntp v0.3.0/go.mod h1:hIHWr+l3+/clUnF44zdK+CWW7fO8dR5cIylAQ76NRpg=
+github.com/eashabalin/accuratetime v0.0.0-20230430104747-a0a8b24502bc h1:0LqRUH00t5ksqi/Eu82Zve7p0RqcNSzn4Bp/ztyMBs0=
+github.com/eashabalin/accuratetime v0.0.0-20230430104747-a0a8b24502bc/go.mod h1:ZTjA1ct/UEENqikRXtlpfpFRokH47NjXXMXWzzzkZCQ=
+github.com/eashabalin/accuratetime v1.0.0 h1:rd7Ge4+4y0Fp3jEzEyMGNCbnvg13fEqJ8vwJe/TU2CU=
+github.com/eashabalin/accuratetime v1.0.0/go.mod h1:l8WjY53PcreyibbJ5hWyVUBEBmkiUPrfGxSYNpTaqy4=
+golang.org/x/net v0.9.0 h1:aWJ/m6xSmxWBx+V0XRHTlrYrPG56jKsLdTFmsSsCzOM=
+golang.org/x/net v0.9.0/go.mod h1:d48xBJpPfHeWQsugry2m+kC02ZBRGRgulfHnEXEuWns=
+golang.org/x/sys v0.7.0 h1:3jlCCIQZPdOYu1h8BkNvLz8Kgwtae2cagcG/VamtZRU=
+golang.org/x/sys v0.7.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
