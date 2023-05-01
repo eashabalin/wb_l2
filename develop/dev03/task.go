@@ -8,24 +8,45 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type SortOptions struct {
-	FileName       string
-	OutputFileName string
-	Column         int
-	Unique         bool
-	Reverse        bool
-	Numeric        bool
+	FileName            string
+	OutputFileName      string
+	Column              int
+	Unique              bool
+	Reverse             bool
+	Numeric             bool
+	Check               bool
+	Month               bool
+	IgnoreLeadingBlanks bool
+	SISuffix            bool
 }
 
 func Main() {
 	options := parseArgs()
 
+	validateOptions(options)
+
 	lines, err := readLines(options.FileName)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	if options.IgnoreLeadingBlanks {
+		removeLeadingBlanks(lines)
+	}
+
+	if options.Check {
+		isSorted := check(lines, options)
+		if isSorted {
+			fmt.Println("sorted")
+			return
+		}
+		fmt.Println("unsorted")
+		return
 	}
 
 	sortLines(lines, options)
@@ -48,14 +69,24 @@ func Main() {
 	}
 }
 
+func validateOptions(options SortOptions) {
+	if options.Month && options.Numeric {
+		fmt.Println("can't combine -M and -n")
+		os.Exit(1)
+	}
+}
+
 func parseArgs() SortOptions {
 	var options SortOptions
 
-	flag.IntVar(&options.Column, "k", 0, "column index (starting from 1) to sort")
-	flag.BoolVar(&options.Unique, "u", false, "remove duplicate lines")
-	flag.BoolVar(&options.Reverse, "r", false, "reverse the sort order")
-	flag.BoolVar(&options.Numeric, "n", false, "sort numerically")
-	flag.StringVar(&options.OutputFileName, "o", "", "write output to file instead of stdout")
+	flag.IntVar(&options.Column, "k", 0, "Column index (starting from 1) to sort.")
+	flag.BoolVar(&options.Unique, "u", false, "Remove duplicate lines.")
+	flag.BoolVar(&options.Reverse, "r", false, "Reverse the sort order.")
+	flag.BoolVar(&options.Numeric, "n", false, "Sort numerically.")
+	flag.BoolVar(&options.IgnoreLeadingBlanks, "b", false, "Ignore leading blanks.")
+	flag.BoolVar(&options.Check, "c", false, "Check if input is sorted.")
+	flag.BoolVar(&options.Month, "M", false, "Sort by month abbreviations. Unknows strings are considered bigger than the month names.")
+	flag.StringVar(&options.OutputFileName, "o", "", "Write output to file instead of stdout.")
 	flag.Parse()
 
 	options.FileName = flag.Arg(0)
@@ -120,6 +151,21 @@ func sortLines(lines []string, options SortOptions) {
 				}
 				return num1 < num2
 			}
+			if err1 == nil {
+				return true
+			}
+			return false
+		}
+		if options.Month {
+			m1, err1 := strToMonth(col1)
+			m2, err2 := strToMonth(col2)
+			if err1 == nil && err2 == nil {
+				if options.Reverse {
+					return m1 > m2
+				}
+				return m1 < m2
+			}
+			return false
 		}
 		if col1 != col2 {
 			if options.Reverse {
@@ -129,6 +175,15 @@ func sortLines(lines []string, options SortOptions) {
 		}
 		return false
 	})
+}
+
+func strToMonth(s string) (time.Month, error) {
+	layout := "Jan"
+	t, err := time.Parse(layout, s)
+	if err != nil {
+		return 0, err
+	}
+	return t.Month(), nil
 }
 
 func removeDuplicate(lines []string) []string {
@@ -141,4 +196,25 @@ func removeDuplicate(lines []string) []string {
 		}
 	}
 	return uniqueLines
+}
+
+func removeLeadingBlanks(lines []string) {
+	for i, _ := range lines {
+		lines[i] = strings.TrimLeft(lines[i], " ")
+	}
+}
+
+func check(lines []string, options SortOptions) bool {
+	before := make([]string, len(lines))
+	copy(before, lines)
+	sortLines(lines, options)
+	if len(before) != len(lines) {
+		return false
+	}
+	for i, v := range before {
+		if v != lines[i] {
+			return false
+		}
+	}
+	return true
 }
