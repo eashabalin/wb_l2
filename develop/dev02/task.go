@@ -5,8 +5,6 @@ import (
 	"unicode"
 )
 
-// "ap11bc2d\5e"
-
 func UnpackStr(str string) string {
 	if len(str) == 0 {
 		return ""
