@@ -19,5 +19,11 @@ func (o *SortOptions) Validate() error {
 	if o.Month && o.Numeric {
 		return errors.New("can't combine -M and -n")
 	}
+	if o.Numeric && o.SISuffix {
+		return errors.New("can't combine -n and -h")
+	}
+	if o.SISuffix && o.Month {
+		return errors.New("can't combine -h and -M")
+	}
 	return nil
 }

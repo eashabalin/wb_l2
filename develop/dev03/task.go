@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"wb_l2/develop/dev03/si_num"
 )
 
 func Main() {
@@ -69,7 +70,7 @@ func parseArgs() SortOptions {
 	flag.BoolVar(&options.Numeric, "n", false, "Sort numerically.")
 	flag.BoolVar(&options.IgnoreLeadingBlanks, "b", false, "Ignore leading blanks.")
 	flag.BoolVar(&options.Check, "c", false, "Check if input is sorted.")
-	flag.BoolVar(&options.SISuffix, "h", false, "Sort numerically with SI suffixes. For example: 10K < 10M < 10T. All supported suffixes: \"EPTGMK/kcmunpfa\" (descending order).")
+	flag.BoolVar(&options.SISuffix, "h", false, "Sort numerically with SI suffixes. For example: 10K < 10M < 10T. All supported suffixes: \"EPTGMKcmunpfa\" (descending order).")
 	flag.BoolVar(&options.Month, "M", false, "Sort by month abbreviations. Unknown strings are considered bigger than the month names.")
 	flag.StringVar(&options.OutputFileName, "o", "", "Write output to file instead of stdout.")
 	flag.Parse()
@@ -142,6 +143,20 @@ func sortLines(lines []string, options SortOptions) {
 			}
 			return false
 		}
+		if options.SISuffix {
+			n1, err1 := si_num.NewSINum(col1)
+			n2, err2 := si_num.NewSINum(col2)
+			if err1 == nil && err2 == nil {
+				if options.Reverse {
+					return n2.LessThan(*n1)
+				}
+				return n1.LessThan(*n2)
+			}
+			if err1 == nil {
+				return true
+			}
+			return false
+		}
 		if options.Month {
 			m1, err1 := strToMonth(col1)
 			m2, err2 := strToMonth(col2)
@@ -150,6 +165,9 @@ func sortLines(lines []string, options SortOptions) {
 					return m1 > m2
 				}
 				return m1 < m2
+			}
+			if err1 == nil {
+				return true
 			}
 			return false
 		}
