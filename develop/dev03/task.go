@@ -11,23 +11,14 @@ import (
 	"time"
 )
 
-type SortOptions struct {
-	FileName            string
-	OutputFileName      string
-	Column              int
-	Unique              bool
-	Reverse             bool
-	Numeric             bool
-	Check               bool
-	Month               bool
-	IgnoreLeadingBlanks bool
-	SISuffix            bool
-}
-
 func Main() {
 	options := parseArgs()
 
-	validateOptions(options)
+	err := options.Validate()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	lines, err := readLines(options.FileName)
 	if err != nil {
@@ -69,13 +60,6 @@ func Main() {
 	}
 }
 
-func validateOptions(options SortOptions) {
-	if options.Month && options.Numeric {
-		fmt.Println("can't combine -M and -n")
-		os.Exit(1)
-	}
-}
-
 func parseArgs() SortOptions {
 	var options SortOptions
 
@@ -85,7 +69,8 @@ func parseArgs() SortOptions {
 	flag.BoolVar(&options.Numeric, "n", false, "Sort numerically.")
 	flag.BoolVar(&options.IgnoreLeadingBlanks, "b", false, "Ignore leading blanks.")
 	flag.BoolVar(&options.Check, "c", false, "Check if input is sorted.")
-	flag.BoolVar(&options.Month, "M", false, "Sort by month abbreviations. Unknows strings are considered bigger than the month names.")
+	flag.BoolVar(&options.SISuffix, "h", false, "Sort numerically with SI suffixes. For example: 10K < 10M < 10T. All supported suffixes: \"EPTGMK/kcmunpfa\" (descending order).")
+	flag.BoolVar(&options.Month, "M", false, "Sort by month abbreviations. Unknown strings are considered bigger than the month names.")
 	flag.StringVar(&options.OutputFileName, "o", "", "Write output to file instead of stdout.")
 	flag.Parse()
 
@@ -106,6 +91,7 @@ func readLines(fileName string) ([]string, error) {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+
 	return lines, scanner.Err()
 }
 
@@ -199,7 +185,7 @@ func removeDuplicate(lines []string) []string {
 }
 
 func removeLeadingBlanks(lines []string) {
-	for i, _ := range lines {
+	for i := range lines {
 		lines[i] = strings.TrimLeft(lines[i], " ")
 	}
 }
