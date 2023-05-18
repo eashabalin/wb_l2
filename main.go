@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"wb_l2/develop/dev05"
+)
 
 func main() {
-	fmt.Println()
+	dev05.Main()
 }

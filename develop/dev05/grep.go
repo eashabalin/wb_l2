@@ -32,10 +32,6 @@ func (g *Grep) Find(lines []string) []string {
 	res := make([]string, 0, len(lines))
 	appended := make([]bool, len(lines))
 	for i, l := range lines {
-		originalLine := l
-		if g.options.LineNum {
-			originalLine = fmt.Sprintf("%d: %s", i+1, originalLine)
-		}
 		if g.options.IgnoreCase {
 			l = strings.ToLower(l)
 		}
@@ -79,7 +75,11 @@ func insertWithContext(res, lines *[]string, i int, options GrepOptions, appende
 	}
 	for j := from; j <= to; j++ {
 		if !(*appended)[j] {
-			*res = append(*res, (*lines)[j])
+			l := (*lines)[j]
+			if options.LineNum {
+				l = fmt.Sprintf("%d. %s", j+1, l)
+			}
+			*res = append(*res, l)
 		}
 		(*appended)[j] = true
 	}

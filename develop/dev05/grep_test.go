@@ -6,8 +6,8 @@ import (
 
 func TestGrep_Find(t *testing.T) {
 	in := []string{"      41.14KK", "fafaf", "254u", "OOOOO", "   .MMMk1", "fafaf"}
-	expect := []string{"      41.14KK", "254u"}
-	options := GrepOptions{Pattern: "[1-4].+", LineNum: false, Fixed: false, IgnoreCase: true, Invert: false, Context: 0}
+	expect := []string{"1.       41.14KK", "3. 254u"}
+	options := GrepOptions{Pattern: "3234refweg"}
 	grep, err := NewGrep(options)
 	if err != nil {
 		t.Errorf("error creating grep object")
