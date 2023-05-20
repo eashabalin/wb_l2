@@ -1,9 +1,7 @@
 package main
 
-import (
-	"wb_l2/develop/dev06"
-)
+import "wb_l2/develop/dev07"
 
 func main() {
-	dev06.Main()
+	dev07.Main()
 }
