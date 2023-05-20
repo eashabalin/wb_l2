@@ -2,6 +2,7 @@ package dev09
 
 import (
 	"bytes"
+	"fmt"
 	"golang.org/x/net/html"
 	"io"
 	"net/http"
@@ -13,22 +14,27 @@ import (
 
 const u = "https://gobyexample.com/"
 
+var dir = ""
+
 func Main() {
-	resp, err := http.Get(u)
+	d, err := createDirectory()
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
+	dir = d
+	parse("")
+}
 
+func parse(relativePath string) {
+	resp, err := http.Get(u + relativePath)
+	if err != nil {
+		panic(err)
+	}
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
 
-	parse(data)
-}
-
-func parse(data []byte) {
 	tkn := html.NewTokenizer(bytes.NewReader(data))
 
 	links := make([]string, 0)
@@ -37,7 +43,7 @@ func parse(data []byte) {
 	for {
 		tt := tkn.Next()
 		if tt == html.ErrorToken {
-			err := tkn.Err()
+			err = tkn.Err()
 			if err == io.EOF {
 				break
 			}
@@ -62,13 +68,16 @@ func parse(data []byte) {
 		}
 	}
 
-	dir, err := createDirectory()
-	if err != nil {
-		panic(err)
+	name := relativePath
+	if name == "" {
+		name = "index.html"
 	}
-
-	err = saveHtml(data, dir, "index.html")
+	fmt.Println("relativePath:", relativePath, "name:", name)
+	err = saveHtml(data, dir, name)
 	if err != nil {
+		if err == os.ErrExist {
+			return
+		}
 		panic(err)
 	}
 
@@ -77,6 +86,15 @@ func parse(data []byte) {
 		panic(err)
 	}
 
+	for _, link := range links {
+		if link == "./" {
+			continue
+		}
+		if !isUrl(link) || path.Base(u) == link {
+			fmt.Println("LINK:", link)
+			parse(link)
+		}
+	}
 }
 
 func getAttribute(token *html.Token, key string) (string, bool) {
@@ -101,7 +119,7 @@ func createDirectory() (dir string, err error) {
 			break
 		} else {
 			n++
-			dir += strconv.Itoa(n)
+			dir = path.Base(u) + strconv.Itoa(n)
 		}
 	}
 	return dir + "/", nil
@@ -112,7 +130,7 @@ func saveHtml(data []byte, dir, name string) error {
 	if os.IsNotExist(err) {
 		return os.WriteFile(dir+name, data, 0644)
 	}
-	return nil
+	return os.ErrExist
 }
 
 func downloadAndSaveHtml(name, dir string) error {
